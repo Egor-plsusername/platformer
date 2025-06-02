@@ -23,6 +23,7 @@ public class Player extends PhysicsObject{
 		super(x, y, level.getLevelData().getTileSize(), level.getLevelData().getTileSize(), level);
 		int offset =(int)(level.getLevelData().getTileSize()*0.1); //hitbox is offset by 10% of the player size.
 		this.hitbox = new RectHitbox(this, offset,offset, width -offset, height - offset);
+		//time = System.currentTimeMillis();
 	}
 
 	@Override

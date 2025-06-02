@@ -36,6 +36,7 @@ public class Level {
 	private ArrayList<Enemy> enemiesList = new ArrayList<>();
 	private ArrayList<Flower> flowers = new ArrayList<>();
 	private ArrayList<Water> waters = new ArrayList<>();
+	private ArrayList<Gas> gasses = new ArrayList<>();
 
 	private List<PlayerDieListener> dieListeners = new ArrayList<>();
 	private List<PlayerWinListener> winListeners = new ArrayList<>();
@@ -47,7 +48,7 @@ public class Level {
 	private Tileset tileset;
 	public static float GRAVITY = 70;
 
-	public Level(LevelData leveldata) {
+	public Level(LevelData leveldata){
 		this.leveldata = leveldata;
 		mapdata = leveldata.getMapdata();
 		width = mapdata.getWidth();
@@ -63,6 +64,7 @@ public class Level {
 	public void restartLevel() {
 		int[][] values = mapdata.getValues();
 		Tile[][] tiles = new Tile[width][height];
+		waters = new ArrayList();
 
 		for (int x = 0; x < width; x++) {
 			int xPosition = x;
@@ -106,12 +108,18 @@ public class Level {
 					tiles[x][y] = new SolidTile(xPosition, yPosition, tileSize, tileset.getImage("Solid_up"), this);
 				else if (values[x][y] == 14)
 					tiles[x][y] = new SolidTile(xPosition, yPosition, tileSize, tileset.getImage("Solid_middle"), this);
-				else if (values[x][y] == 15)
+				else if (values[x][y] == 15){
 					tiles[x][y] = new Gas(xPosition, yPosition, tileSize, tileset.getImage("GasOne"), this, 1);
-				else if (values[x][y] == 16)
+					gasses.add((Gas) tiles[x][y]);
+				}
+				else if (values[x][y] == 16){
 					tiles[x][y] = new Gas(xPosition, yPosition, tileSize, tileset.getImage("GasTwo"), this, 2);
-				else if (values[x][y] == 17)
+					gasses.add((Gas) tiles[x][y]);
+				}
+				else if (values[x][y] == 17){
 					tiles[x][y] = new Gas(xPosition, yPosition, tileSize, tileset.getImage("GasThree"), this, 3);
+					gasses.add((Gas) tiles[x][y]);
+				}
 				else if (values[x][y] == 18)
 					tiles[x][y] = new Water(xPosition, yPosition, tileSize, tileset.getImage("Falling_water"), this, 0);
 				else if (values[x][y] == 19){
@@ -183,14 +191,26 @@ public class Level {
 					i--;
 				}
 			}
-
+			boolean track = false;
 			for (int i = 0; i < waters.size(); i++) {
 				if (waters.get(i).getHitbox().isIntersecting(player.getHitbox())) {
-					player.walkSpeed = 200;
-					
-				} else{
-					player.walkSpeed = 400;
-				}
+					track = true;
+				} 
+			}
+			if (track == true){
+			player.walkSpeed = 200;	
+			} else{
+				player.walkSpeed = 400;
+			}
+			boolean gasTrack = false;
+			boolean lobotomy = false;
+		for (int i = 0; i < gasses.size(); i++) {
+				if (gasses.get(i).getHitbox().isIntersecting(player.getHitbox())) {
+					gasTrack = true;
+				} 
+			}
+			if(gasTrack == true){
+				time = System.currentTimeMillis();
 			}
 
 			// Update the enemies
