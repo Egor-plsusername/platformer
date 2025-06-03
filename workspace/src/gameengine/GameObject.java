@@ -6,7 +6,7 @@ import gameengine.maths.Vector2D;
 
 public class GameObject {
 
-	protected Vector2D position;
+	public Vector2D position;
 	protected int width;
 	protected int height;
 	

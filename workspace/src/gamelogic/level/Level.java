@@ -37,6 +37,7 @@ public class Level {
 	private ArrayList<Flower> flowers = new ArrayList<>();
 	private ArrayList<Water> waters = new ArrayList<>();
 	private ArrayList<Gas> gasses = new ArrayList<>();
+	private ArrayList<Tile> lobotomy = new ArrayList<>(); 
 
 	private List<PlayerDieListener> dieListeners = new ArrayList<>();
 	private List<PlayerWinListener> winListeners = new ArrayList<>();
@@ -47,6 +48,7 @@ public class Level {
 	private int tileSize;
 	private Tileset tileset;
 	public static float GRAVITY = 70;
+	private long time;
 
 	public Level(LevelData leveldata){
 		this.leveldata = leveldata;
@@ -76,9 +78,12 @@ public class Level {
 				tiles[x][y] = new Tile(xPosition, yPosition, tileSize, null, false, this);
 				if (values[x][y] == 0)
 					tiles[x][y] = new Tile(xPosition, yPosition, tileSize, null, false, this); // Air
-				else if (values[x][y] == 1)
+				else if (values[x][y] == 1){
 					tiles[x][y] = new SolidTile(xPosition, yPosition, tileSize, tileset.getImage("Solid"), this);
-
+					if(y-1 > 0 && !(tiles[x][y-1] instanceof SolidTile)){
+						lobotomy.add(tiles[x][y-1]);
+					}
+				}
 				else if (values[x][y] == 2)
 					tiles[x][y] = new Spikes(xPosition, yPosition, tileSize, Spikes.HORIZONTAL_DOWNWARDS, this);
 				else if (values[x][y] == 3)
@@ -87,10 +92,19 @@ public class Level {
 					tiles[x][y] = new Spikes(xPosition, yPosition, tileSize, Spikes.VERTICAL_LEFTWARDS, this);
 				else if (values[x][y] == 5)
 					tiles[x][y] = new Spikes(xPosition, yPosition, tileSize, Spikes.VERTICAL_RIGHTWARDS, this);
-				else if (values[x][y] == 6)
+				else if (values[x][y] == 6){
 					tiles[x][y] = new SolidTile(xPosition, yPosition, tileSize, tileset.getImage("Dirt"), this);
-				else if (values[x][y] == 7)
+					if(y-1 > 0 && !(tiles[x][y-1] instanceof SolidTile)){
+						lobotomy.add(tiles[x][y-1]);
+					}
+				}
+				else if (values[x][y] == 7){
 					tiles[x][y] = new SolidTile(xPosition, yPosition, tileSize, tileset.getImage("Grass"), this);
+					if(y-1 > 0 && !(tiles[x][y-1] instanceof SolidTile)){
+						lobotomy.add(tiles[x][y-1]);
+					}
+					
+				}
 				else if (values[x][y] == 8)
 					enemiesList.add(new Enemy(xPosition * tileSize, yPosition * tileSize, this)); // TODO: objects vs
 																									// tiles
@@ -102,12 +116,24 @@ public class Level {
 				} else if (values[x][y] == 11) {
 					tiles[x][y] = new Flower(xPosition, yPosition, tileSize, tileset.getImage("Flower2"), this, 2);
 					flowers.add((Flower) tiles[x][y]);
-				} else if (values[x][y] == 12)
+				} else if (values[x][y] == 12){
 					tiles[x][y] = new SolidTile(xPosition, yPosition, tileSize, tileset.getImage("Solid_down"), this);
-				else if (values[x][y] == 13)
+					if(y-1 > 0 && !(tiles[x][y-1] instanceof SolidTile)){
+						lobotomy.add(tiles[x][y-1]);
+					}
+				}
+				else if (values[x][y] == 13){
 					tiles[x][y] = new SolidTile(xPosition, yPosition, tileSize, tileset.getImage("Solid_up"), this);
-				else if (values[x][y] == 14)
+					if(y-1 > 0 && !(map.getTiles()[x][y-1] instanceof SolidTile)){
+						lobotomy.add(tiles[x][y-1]);
+					}
+				}
+				else if (values[x][y] == 14){
 					tiles[x][y] = new SolidTile(xPosition, yPosition, tileSize, tileset.getImage("Solid_middle"), this);
+					if(y-1 > 0 && !(tiles[x][y-1] instanceof SolidTile)){
+						lobotomy.add(tiles[x][y-1]);
+					}
+				}
 				else if (values[x][y] == 15){
 					tiles[x][y] = new Gas(xPosition, yPosition, tileSize, tileset.getImage("GasOne"), this, 1);
 					gasses.add((Gas) tiles[x][y]);
@@ -186,7 +212,7 @@ public class Level {
 					if (flowers.get(i).getType() == 1)
 						water(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 3);
 					else
-						addGas(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 9, new ArrayList<Gas>());
+						addGas(flowers.get(i).getCol(), flowers.get(i).getRow(), map, 21, new ArrayList<Gas>());
 					flowers.remove(i);
 					i--;
 				}
@@ -203,14 +229,29 @@ public class Level {
 				player.walkSpeed = 400;
 			}
 			boolean gasTrack = false;
-			boolean lobotomy = false;
+			int teleX;
+			int TeleY;
 		for (int i = 0; i < gasses.size(); i++) {
 				if (gasses.get(i).getHitbox().isIntersecting(player.getHitbox())) {
 					gasTrack = true;
+					//System.out.println("touching gas");
 				} 
 			}
 			if(gasTrack == true){
-				time = System.currentTimeMillis();
+				if(time == 0){
+					time = System.currentTimeMillis();
+					System.out.println("Time is "+time);
+				}
+				else if(System.currentTimeMillis()-time>1000){
+					int tele = (int)(Math.random() * lobotomy.size()) + 0;
+					//System.out.println("trying to tele to "+lobotomy.get(tele).getX());
+					player.randomMove((int)lobotomy.get(tele).getX(), (int)lobotomy.get(tele).getY());
+
+				}
+			}
+			else{
+				time = 0;
+				//System.out.println("Time is 0");
 			}
 
 			// Update the enemies
@@ -233,6 +274,7 @@ public class Level {
 	Gas g = new Gas(col, row, tileSize, tileset.getImage("GasOne"), this, 0);
 	map.addTile(col, row, g);
 	placedThisRound.add(g);
+	gasses.add(g);
 	numSquaresToFill--;
 		
 		// make pattern at placedThisRound.get() remove tile from placedThisRound add
@@ -245,12 +287,12 @@ public class Level {
 
 		for (int rowIndex = r - 1; rowIndex < r + 2; rowIndex++) {
 			for (int colIndex = c; colIndex > c - 2; colIndex -= 2) {
-				if (rowIndex< map.getTiles()[0].length && rowIndex>=0 && colIndex < map.getTiles().length && colIndex>=0 && !map.getTiles()[colIndex][rowIndex].isSolid() && !(map.getTiles()[colIndex][rowIndex] instanceof Gas)) {
+				if (rowIndex< map.getTiles()[0].length && rowIndex>=0 && colIndex < map.getTiles().length && colIndex>=0 && !map.getTiles()[colIndex][rowIndex].isSolid() && !(map.getTiles()[colIndex][rowIndex] instanceof Gas) && numSquaresToFill != 0){
 					g = new Gas(colIndex, rowIndex, tileSize, tileset.getImage("GasOne"), this, 0);
 					map.addTile(colIndex, rowIndex, g);
 					placedThisRound.add(g);
+					gasses.add(g);
 					numSquaresToFill--;
-
 				}
 				if (colIndex == c) {
 					colIndex += 3;

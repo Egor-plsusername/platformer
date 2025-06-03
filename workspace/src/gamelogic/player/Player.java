@@ -14,14 +14,14 @@ public class Player extends PhysicsObject{
 	public float walkSpeed = 400;
 	public float jumpPower = 1350;
 	private boolean isJumping = false;
-
+	private int offset;
 
 
 
 	public Player(float x, float y, Level level) {
 	
 		super(x, y, level.getLevelData().getTileSize(), level.getLevelData().getTileSize(), level);
-		int offset =(int)(level.getLevelData().getTileSize()*0.1); //hitbox is offset by 10% of the player size.
+		offset =(int)(level.getLevelData().getTileSize()*0.1); //hitbox is offset by 10% of the player size.
 		this.hitbox = new RectHitbox(this, offset,offset, width -offset, height - offset);
 		//time = System.currentTimeMillis();
 	}
@@ -62,5 +62,14 @@ public class Player extends PhysicsObject{
 		}
 		
 		hitbox.draw(g);
+	}
+
+
+	public void randomMove(int x, int y){
+		position.x = x;
+		position.y = y;
+		this.hitbox = new RectHitbox(this , offset,offset, width -offset, height - offset);
+		movementVector.x =0;
+		movementVector.y =0;
 	}
 }
