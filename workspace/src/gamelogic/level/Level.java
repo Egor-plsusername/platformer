@@ -244,7 +244,7 @@ public class Level {
 				}
 				else if(System.currentTimeMillis()-time>1000){
 					int tele = (int)(Math.random() * lobotomy.size()) + 0;
-					//System.out.println("trying to tele to "+lobotomy.get(tele).getX());
+					//System.out.println("trying to teleport to "+lobotomy.get(tele).getX());
 					player.randomMove((int)lobotomy.get(tele).getX(), (int)lobotomy.get(tele).getY());
 
 				}
