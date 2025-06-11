@@ -14,8 +14,10 @@ public class RectHitbox extends Hitbox{
 	private float offsetY;
 	private int width;
 	private int height;
+	public Color color;
 
 	public RectHitbox(GameObject object, float offsetX, float offsetY, int width, int height) {
+		color = Color.GREEN;
 		this.object = object;
 		this.position = new Vector2D(object.getX() + offsetX, object.getY() + offsetY);
 		this.offsetX = offsetX;
@@ -25,6 +27,7 @@ public class RectHitbox extends Hitbox{
 	}
 
 	public RectHitbox(float x, float y, float offsetX, float offsetY, int width, int height) {
+		color = Color.GREEN;
 		this.object = null;
 		this.position = new Vector2D(x + offsetX, y + offsetY);
 		this.offsetX = offsetX;
@@ -43,8 +46,9 @@ public class RectHitbox extends Hitbox{
 
 	@Override
 	public void draw(Graphics g) {
+		
 		if(!SHOW_HITBOXES) return;
-		g.setColor(Color.GREEN);
+		g.setColor(color);
 		g.drawRect((int)position.x, (int)position.y, width, height);
 	}
 

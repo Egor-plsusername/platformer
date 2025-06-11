@@ -19,6 +19,7 @@ import gamelogic.tiles.Gas;
 import gamelogic.tiles.SolidTile;
 import gamelogic.tiles.Spikes;
 import gamelogic.tiles.Tile;
+import gamelogic.tiles.Voids;
 import gamelogic.tiles.Water;
 
 public class Level {
@@ -38,6 +39,7 @@ public class Level {
 	private ArrayList<Water> waters = new ArrayList<>();
 	private ArrayList<Gas> gasses = new ArrayList<>();
 	private ArrayList<Tile> lobotomy = new ArrayList<>(); 
+	private ArrayList<Voids> voids = new ArrayList<>();
 
 	private List<PlayerDieListener> dieListeners = new ArrayList<>();
 	private List<PlayerWinListener> winListeners = new ArrayList<>();
@@ -160,6 +162,23 @@ public class Level {
 					tiles[x][y] = new Water(xPosition, yPosition, tileSize, tileset.getImage("Quarter_water"), this, 1);
 					waters.add((Water) tiles[x][y]);
 				}
+				else if (values[x][y] == 22){
+					tiles[x][y] = new Voids(xPosition, yPosition, tileSize, Voids.VERTICAL_RIGHTWARDS, this);
+					voids.add((Voids) tiles[x][y]);
+				}
+
+				else if (values[x][y] == 23){
+					tiles[x][y] = new Voids(xPosition, yPosition, tileSize, Voids.VERTICAL_LEFTWARDS, this);
+					voids.add((Voids) tiles[x][y]);
+				}
+				else if (values[x][y] == 24){
+					tiles[x][y] = new Voids(xPosition, yPosition, tileSize, Voids.HORIZONTAL_UPWARDS, this);
+					voids.add((Voids) tiles[x][y]);
+				}
+				else if (values[x][y] == 25){
+					tiles[x][y] = new Voids(xPosition, yPosition, tileSize, Voids.HORIZONTAL_DOWNWARDS, this);
+					voids.add((Voids) tiles[x][y]);
+				}
 			}
 
 		}
@@ -217,6 +236,19 @@ public class Level {
 					i--;
 				}
 			}
+
+			
+			for(int i = 0; i < voids.size(); i++){
+				if(voids.get(i).getOffBox().isIntersecting(player.getHitbox())){
+					voids.get(i).turnOffHitbox();
+				}
+				else{
+					voids.get(i).turnOnHitbox();
+				}
+
+			}
+
+
 			boolean track = false;
 			for (int i = 0; i < waters.size(); i++) {
 				if (waters.get(i).getHitbox().isIntersecting(player.getHitbox())) {
@@ -228,9 +260,8 @@ public class Level {
 			} else{
 				player.walkSpeed = 400;
 			}
+
 			boolean gasTrack = false;
-			int teleX;
-			int TeleY;
 		for (int i = 0; i < gasses.size(); i++) {
 				if (gasses.get(i).getHitbox().isIntersecting(player.getHitbox())) {
 					gasTrack = true;
@@ -240,9 +271,9 @@ public class Level {
 			if(gasTrack == true){
 				if(time == 0){
 					time = System.currentTimeMillis();
-					System.out.println("Time is "+time);
+					//System.out.println("Time is "+time);
 				}
-				else if(System.currentTimeMillis()-time>1000){
+				else if(System.currentTimeMillis()-time>2000){
 					int tele = (int)(Math.random() * lobotomy.size()) + 0;
 					//System.out.println("trying to teleport to "+lobotomy.get(tele).getX());
 					player.randomMove((int)lobotomy.get(tele).getX(), (int)lobotomy.get(tele).getY());
